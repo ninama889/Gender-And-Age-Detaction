@@ -1,4 +1,4 @@
-import cv2, time
+import cv2
 video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 check,frame = video.read()
@@ -34,4 +34,4 @@ while True:
     if key == ord('q'):
         break
 video.release()
-cv2.destroyAllWindows()
+cv2.destroyAllWindows() 
