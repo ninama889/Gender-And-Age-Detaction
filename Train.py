@@ -6,6 +6,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import BatchNormalization, Conv2D, MaxPooling2D, Activation, Flatten, Dropout, Dense
 from tensorflow.keras import backend as K
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 import numpy as np
 import random
 import cv2
@@ -121,3 +122,24 @@ H = model.fit_generator(aug.flow(trainX, trainY, batch_size=batch_size),
                         validation_data=(testX,testY),
                         steps_per_epoch=len(trainX) // batch_size,
                         epochs=epochs, verbose=1)
+
+
+# save the model to disk
+model.save('gender_detection.model')
+
+# plot training/validation loss/accuracy
+plt.style.use("ggplot")
+plt.figure()
+N = epochs
+plt.plot(np.arange(0,N), H.history["loss"], label="train_loss")
+plt.plot(np.arange(0,N), H.history["val_loss"], label="val_loss")
+plt.plot(np.arange(0,N), H.history["accuracy"], label="train_accuracy")
+plt.plot(np.arange(0,N), H.history["val_accuracy"], label="val_accuracy")
+
+plt.title("Training Loss and Accuracy")
+plt.xlabel("Epoch #")
+plt.ylabel("Loss/Accuracy")
+plt.legend(loc="upper right")
+
+# save plot to disk
+plt.savefig('plot.png')
