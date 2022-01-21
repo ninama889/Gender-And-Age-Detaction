@@ -113,7 +113,7 @@ model = build(width=img_dims[0], height=img_dims[1], depth=img_dims[2],
                             classes=2)
 
 # compile the model
-opt = Adam(lr=lr, decay=lr/epochs)
+opt = Adam(lr=lr, decay=lr/epochs)#optimizer
 model.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy"])
 
 # train the model
