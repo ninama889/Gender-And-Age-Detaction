@@ -9,6 +9,8 @@ venv.bak/
 
 .idea
 
+#datasets
 UTKFace/
+gender_dataset_face/
 
 train_age_gender_detection.py
