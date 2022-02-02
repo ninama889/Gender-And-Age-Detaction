@@ -30,17 +30,51 @@ def main():
 
 def welcome():
     
-    st.title('Image Processing using Streamlit')
+    st.title('Face Bot')
     
-    st.subheader('A simple app that shows different image processing algorithms. You can choose the options'
-             + ' from the left. I have implemented only a few to show how it works on Streamlit. ' + 
-             'You are free to add stuff to this app.')
+    st.subheader('A simple app that detect Age and Gender. You can choose the options'
+             + ' from the left. we implemented Face bot for Image and Web Cam .')
 
 @st.cache
 def load_image(img):
     im=Image.open(img)
     return im
+
+eye_cascade = cv2.CascadeClassifier('haarCascade/haarcascade_eye.xml')
+smile_cascade = cv2.CascadeClassifier('haarCascade/haarcascade_smile.xml')
+
+def detect_eyes(frame):
+    eyes= eye_cascade.detectMultiScale(frame,1.3,5)
+    for(ex,ey,ew,eh) in eyes:
+        cv2.rectangle(frame,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+    return frame ,eyes
+def cartonize_image(frame):
+    img = cv2.cvtColor(frame,1)
+    gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+    #Edges
+    gray = cv2.medianBlur(gray,5)
+    edges = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY_INV,21,10)
+    #color
+    color = cv2.bilateralFilter(img,9,300,300)
+    #Cartoon
+    cartoon = cv2.bitwise_and(color,color,mask=edges)
+    return cartoon
+
+def object_detection(frame):
+    task = ['Eyes','Cartoize']
+    feature_choice = st.sidebar.selectbox("Find Feature",task)
+    if st.button("Process") :
+        if feature_choice =='Eyes':
+            res_img ,eyes = detect_eyes(frame)
+            st.image(res_img,width=400)
+            if eyes is not {}:
+                st.success("Found  Eyes")
+        elif feature_choice =='Cartoize':
+            res_img = cartonize_image(frame)
+            st.image(res_img,width=400)
+
 def photo():
+    st.header("Image bot")
     uploaded_file = st.file_uploader("Choose Your image",type=['jpg','jpeg','png'])
     model = load_model('gender_detection.model')
     ageProto = "age_deploy.prototxt"
@@ -54,31 +88,28 @@ def photo():
     if uploaded_file is not None:
         our_img = load_image(uploaded_file)
         st.text("Original image :")
-        st.image(our_img,width=500)
-        enhance_type = st.sidebar.radio("Enhance Type",["Original","Gray-Scale","Contrast","Brightness","Blurring"])
-        if enhance_type =='Gray-Scale':
-            new_img = np.array(our_img.convert('RGB'))           
-            img = cv2.cvtColor(new_img,1)
-            img_output = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-            st.image(img_output,width=500)
-        elif enhance_type =='Contrast':
+        st.image(our_img,width=400)
+        Contrast  = st.sidebar.checkbox("Contrast")
+        Brightness = st.sidebar.checkbox("Brightness")
+        Blurring = st.sidebar.checkbox("Blurring")
+        
+        img_output=our_img
+        
+        if Contrast:
             rate = st.sidebar.slider("Contrast",0.5,3.5)
-            enhancer = ImageEnhance.Contrast(our_img)
+            enhancer = ImageEnhance.Contrast(img_output)
             img_output = enhancer.enhance(rate)
-        elif enhance_type =='Brightness':
+        if Brightness:
             rate = st.sidebar.slider("Brightness",0.5,3.5)
-            enhancer = ImageEnhance.Brightness(our_img)
+            enhancer = ImageEnhance.Brightness(img_output)
             img_output = enhancer.enhance(rate)
-        elif enhance_type =='Blurring':
-            new_img = np.array(our_img.convert("RGB"))
+        if Blurring :
+            img_output = np.array(img_output.convert("RGB"))
             rate = st.sidebar.slider("Blurring",0.5,3.5)
-            img = cv2.cvtColor(new_img,1)
-            img_output = cv2.GaussianBlur(img,(11,11),rate)
-            # st.image(img_output,width=500)
-        else :
-            img_output=our_img
+            img_output = cv2.cvtColor(img_output,1)
+            img_output = cv2.GaussianBlur(img_output,(11,11),rate)
+            # st.image(img_output,width=400)
         frame =  np.array(img_output)
-
         face, confidence = cv.detect_face(frame)
         blob=cv2.dnn.blobFromImage(frame, 1.0, (300,300), [104,117,123], swapRB=False)
         
@@ -119,17 +150,17 @@ def photo():
             Y = startY - 10 if startY - 10 > 10 else startY + 10
 
             # write label and confidence above face rectangle
+            object_img = frame
             cv2.putText(frame, label, (startX, Y),  cv2.FONT_HERSHEY_SIMPLEX,
                         0.5, (0, 255, 0), 2)
             st.write(label)
-        st.image(frame,width=500)
+        st.image(frame,width=400)
+        object_detection(frame)
 
 def video():
     st.title("Age Bot")
     run = st.checkbox("Run")
     FRAME_WINDOW=st.image([])
-    cam = cv2.VideoCapture(0)
-
     # load model
     model = load_model('OLDgender_detection.model')
     ageProto = "age_deploy.prototxt"
@@ -140,8 +171,14 @@ def video():
     MODEL_MEAN_VALUES = (78.4263377603, 87.7689143744, 114.895847746)
     padding=20
     # open webcam
+    cam = cv2.VideoCapture(0)
+    st.write("width : ",cam.get(3)," height : ",cam.get(4))
+    cam.set(3,1280)
+    cam.set(4,960)
+    st.write("width : ",cam.get(3)," height : ",cam.get(4))
         
     while run:
+
         ret , frame = cam.read()
         # apply face detection  
         face, confidence = cv.detect_face(frame)
