@@ -77,8 +77,8 @@ def photo():
     st.header("Image bot")
     uploaded_file = st.file_uploader("Choose Your image",type=['jpg','jpeg','png'])
     model = load_model('gender_detection.model')
-    ageProto = "age_deploy.prototxt"
-    ageModel = "age_net.caffemodel"
+    ageProto = "./models/Age/age_deploy.prototxt"
+    ageModel = "./models/Age/age_net.caffemodel"
     ageList = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(24-32)', '(38-43)', '(48-53)','60-100)']
     genderList = ['Man','Woman']
     ageNet=cv2.dnn.readNet(ageModel,ageProto)
