@@ -47,7 +47,7 @@ def object_detection(frame):
 def app():
     st.header("Image bot")
     uploaded_file = st.file_uploader("Choose Your image",type=['jpg','jpeg','png','jfif'])
-    model = load_model('gender_detection.model')
+    model = load_model('models/gender_detection.model')
     ageProto = "models/Age/age_deploy.prototxt"
     ageModel = "models/Age/age_net.caffemodel"
     ageList = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(24-32)', '(38-43)', '(48-53)','60-100)']

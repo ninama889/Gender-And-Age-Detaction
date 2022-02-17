@@ -5,7 +5,6 @@ import streamlit as st
 from streamlit_lottie import st_lottie  # pip install streamlit-lottie
 from PIL import Image
 
-gender = Image.open('style/images/gender.webp')
 def load_lottieurl(url: str):
     r = requests.get(url)
     if r.status_code != 200:
