@@ -1,8 +1,6 @@
 # Face-Bot
 - Gender and age detector with fun functionalities 
-```
-The main aim of this article is to detect age and gender through the given data set. We will use simple python and Keras methods for detecting age and gender.
-```
+- The main aim of this article is to detect age and gender through the given data set. We will use simple python and Keras methods for detecting age and gender.
 
 
 # About the Project :
